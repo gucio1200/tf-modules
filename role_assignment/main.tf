@@ -1,5 +1,5 @@
 resource "azurerm_role_assignment" "this" {
-  for_each = { for r in var.assignments : "${r.principal_id}-${r.scope}-${coalesce(r.role_definition_name, r.role_definition_id)}" => r } # Unique key for each assignment
+  for_each = { for r in var.assignments : "${r.principal_id}-${r.scope}-${coalesce(r.role_definition_name, r.role_definition_id)}" => r }
 
   scope                            = each.value.scope
   role_definition_name             = lookup(each.value, "role_definition_name", null)

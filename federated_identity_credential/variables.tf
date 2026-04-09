@@ -3,9 +3,21 @@ variable "credentials" {
   type = list(object({
     name                      = string
     user_assigned_identity_id = string
-    issuer                    = string
+    issuer                    = optional(string)
     subject                   = string
-    audience                  = string
+    audience                  = optional(string)
     description               = optional(string, null)
   }))
+}
+
+variable "default_issuer" {
+  description = "Optional. A default OIDC issuer if not specified per-credential."
+  type        = string
+  default     = null
+}
+
+variable "default_audience" {
+  description = "Optional. A default audience value to use for credentials if not specified per-credential."
+  type        = string
+  default     = "api://AzureADTokenExchange"
 }

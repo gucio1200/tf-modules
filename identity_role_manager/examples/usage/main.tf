@@ -2,7 +2,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 3.0"
+      version = "4.68.0"
     }
   }
 }
@@ -59,7 +59,7 @@ module "identity_and_roles" {
 
     # Example 3: Workload with its base scope.
     "app-workload-custom-roles" = {
-      scope = data.azurerm_client_config.current.subscription_id # Apply base roles to the whole subscription
+      scope = "/subscriptions/${data.azurerm_client_config.current.subscription_id}" # Apply base roles to the whole subscription
     }
     # Note: If a key is missing (e.g., "some-future-workload"), it remains disabled and is ignored.
   }

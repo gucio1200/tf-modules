@@ -10,7 +10,6 @@ locals {
           issuer                    = config.issuer_url != null ? config.issuer_url : try(fic.issuer, null)
           user_assigned_identity_id = config.user_assigned_identity_id != null ? config.user_assigned_identity_id : try(fic.user_assigned_identity_id, null)
           audience                  = try(fic.audience, null)
-          description               = try(fic.description, null)
         }
       ]
 

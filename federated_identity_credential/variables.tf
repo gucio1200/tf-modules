@@ -6,7 +6,6 @@ variable "credentials" {
     issuer                    = optional(string)
     namespace                 = string
     audience                  = optional(string)
-    description               = optional(string, null)
   }))
 }
 

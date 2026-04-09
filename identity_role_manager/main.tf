@@ -8,36 +8,22 @@ locals {
           name                      = fic.name
           namespace                 = fic.namespace
           issuer                    = config.issuer_url != null ? config.issuer_url : try(fic.issuer, null)
-          user_assigned_identity_id = config.custom_user_assigned_identity_id != null ? config.custom_user_assigned_identity_id : try(fic.user_assigned_identity_id, null)
+          user_assigned_identity_id = config.user_assigned_identity_id != null ? config.user_assigned_identity_id : try(fic.user_assigned_identity_id, null)
           audience                  = try(fic.audience, null)
           description               = try(fic.description, null)
         }
       ]
 
-      # Combine the predefined roles with any extra roles passed in dynamically via `additional_role_assignments`
-      role_assignments = concat(
-        [
-          for ra in try(local.predefined_configs[k].role_assignments, []) : {
-            scope                            = config.scope
-            role_definition_name             = try(ra.role_definition_name, null)
-            role_definition_id               = try(ra.role_definition_id, null)
-            principal_id                     = config.principal_id != null ? config.principal_id : try(ra.principal_id, null)
-            description                      = try(ra.description, null)
-            skip_service_principal_aad_check = try(ra.skip_service_principal_aad_check, false)
-          }
-        ],
-        [
-          for extra_ra in config.additional_role_assignments : {
-            scope                = extra_ra.scope
-            role_definition_name = extra_ra.role_definition_name
-            role_definition_id   = extra_ra.role_definition_id
-            # Fallback to the workload's override principal_id, otherwise use the one defined in the extra role, otherwise null
-            principal_id                     = extra_ra.principal_id != null ? extra_ra.principal_id : (config.principal_id != null ? config.principal_id : null)
-            description                      = extra_ra.description
-            skip_service_principal_aad_check = extra_ra.skip_service_principal_aad_check
-          }
-        ]
-      )
+      role_assignments = [
+        for ra in try(local.predefined_configs[k].role_assignments, []) : {
+          scope                            = config.scope
+          role_definition_name             = try(ra.role_definition_name, null)
+          role_definition_id               = try(ra.role_definition_id, null)
+          principal_id                     = config.principal_id != null ? config.principal_id : try(ra.principal_id, null)
+          description                      = try(ra.description, null)
+          skip_service_principal_aad_check = try(ra.skip_service_principal_aad_check, false)
+        }
+      ]
     }
     # Only process configurations that actually exist in our predefined list
     if contains(keys(local.predefined_configs), k)

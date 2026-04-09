@@ -47,9 +47,9 @@ module "identity_and_roles" {
     # It will automatically inherit the "Reader" and "AcrPull" roles from workloads.tf.
     # We override the identity specifically for this app.
     "app-workload-1" = {
-      scope                            = azurerm_resource_group.example.id
-      principal_id                     = azurerm_user_assigned_identity.app1.principal_id
-      custom_user_assigned_identity_id = azurerm_user_assigned_identity.app1.id
+      scope                     = azurerm_resource_group.example.id
+      principal_id              = azurerm_user_assigned_identity.app1.principal_id
+      user_assigned_identity_id = azurerm_user_assigned_identity.app1.id
     }
 
     # Example 2: A workload that only has federated identity credentials predefined.
@@ -57,19 +57,10 @@ module "identity_and_roles" {
     # It will fall back to using the global 'default_user_assigned_identity_id'.
     "app-workload-only-fic" = {}
 
-    # Example 3: Workload with its base scope, plus an additional one-off role injected dynamically.
+    # Example 3: Workload with its base scope.
     "app-workload-custom-roles" = {
       scope = data.azurerm_client_config.current.subscription_id # Apply base roles to the whole subscription
-
-      # We inject an extra one-off role targeting a completely different scope
-      additional_role_assignments = [
-        {
-          scope                = "${azurerm_resource_group.example.id}/providers/Microsoft.KeyVault/vaults/my-vault"
-          role_definition_name = "Key Vault Secrets User"
-        }
-      ]
     }
-
     # Note: If a key is missing (e.g., "some-future-workload"), it remains disabled and is ignored.
   }
 }

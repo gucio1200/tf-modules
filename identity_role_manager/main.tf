@@ -4,7 +4,7 @@ locals {
     for k, config in var.workload_configs : k => {
 
       federated_identity_credentials = [
-        for fic in try(local.predefined_configs[k].federated_identity_credentials, []) : {
+        for fic_key, fic in try(local.predefined_configs[k].federated_identity_credentials, {}) : {
           name                      = fic.name
           namespace                 = fic.namespace
           issuer                    = config.issuer_url != null ? config.issuer_url : try(fic.issuer, null)
@@ -13,8 +13,11 @@ locals {
         }
       ]
 
-      role_assignments = [
-        for ra in try(local.predefined_configs[k].role_assignments, []) : {
+      # We now use the explicit map keys defined in workloads.tf (e.g., 'reader', 'acrpull')
+      # This completely guarantees the keys are strictly unique and known at plan time.
+      role_assignments = {
+        for ra_key, ra in try(local.predefined_configs[k].role_assignments, {}) :
+        ra_key => {
           scope                            = config.scope
           role_definition_name             = try(ra.role_definition_name, null)
           role_definition_id               = try(ra.role_definition_id, null)
@@ -22,19 +25,18 @@ locals {
           description                      = try(ra.description, null)
           skip_service_principal_aad_check = try(ra.skip_service_principal_aad_check, false)
         }
-      ]
+      }
     }
     # Only process configurations that actually exist in our predefined list
     if contains(keys(local.predefined_configs), k)
   }
 }
-
 module "federated_identity_credential" {
   source = "../federated_identity_credential"
 
   for_each = {
     for k, v in local.active_configs : k => v
-    if length(try(v.federated_identity_credentials, [])) > 0
+    if length(v.federated_identity_credentials) > 0
   }
 
   credentials = each.value.federated_identity_credentials
@@ -49,7 +51,7 @@ module "role_assignment" {
 
   for_each = {
     for k, v in local.active_configs : k => v
-    if length(try(v.role_assignments, [])) > 0
+    if length(v.role_assignments) > 0
   }
 
   assignments = each.value.role_assignments

@@ -1,5 +1,5 @@
 resource "azurerm_role_assignment" "this" {
-  for_each = { for r in var.assignments : "${coalesce(r.principal_id, var.default_principal_id)}-${r.scope}-${coalesce(r.role_definition_name, r.role_definition_id)}" => r }
+  for_each = var.assignments
 
   scope                            = each.value.scope
   role_definition_name             = lookup(each.value, "role_definition_name", null)

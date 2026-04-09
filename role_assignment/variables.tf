@@ -1,6 +1,6 @@
 variable "assignments" {
-  description = "A list of objects, each describing an azurerm_role_assignment resource."
-  type = list(object({
+  description = "A map of objects, each describing an azurerm_role_assignment resource. The map key should be a stable, plan-time known string (like the role name)."
+  type = map(object({
     principal_id                     = optional(string) # The Object ID of the principal (user, group, service principal, managed identity) to assign the role to. If not provided, `var.default_principal_id` will be used.
     scope                            = string
     role_definition_name             = optional(string)

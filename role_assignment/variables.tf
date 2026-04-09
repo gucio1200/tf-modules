@@ -17,7 +17,10 @@ variable "assignments" {
     error_message = "Each assignment must provide exactly one of 'role_definition_name' or 'role_definition_id'."
   }
   validation {
-    condition     = all([for assignment in var.assignments : lookup(assignment, "principal_id", null) != null || var.default_principal_id != null])
+    condition = length([
+      for assignment in var.assignments :
+      assignment if lookup(assignment, "principal_id", null) == null && var.default_principal_id == null
+    ]) == 0
     error_message = "Each assignment must provide a 'principal_id' or a 'default_principal_id' must be set for the module."
   }
 }

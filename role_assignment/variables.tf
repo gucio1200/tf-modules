@@ -9,11 +9,11 @@ variable "assignments" {
     skip_service_principal_aad_check = optional(bool, false)
   }))
   validation {
-    condition = all([
+    condition = length([
       for assignment in var.assignments :
-      (lookup(assignment, "role_definition_name", null) != null || lookup(assignment, "role_definition_id", null) != null) &&
-      !(lookup(assignment, "role_definition_name", null) != null && lookup(assignment, "role_definition_id", null) != null)
-    ])
+      assignment if !((lookup(assignment, "role_definition_name", null) != null || lookup(assignment, "role_definition_id", null) != null) &&
+      !(lookup(assignment, "role_definition_name", null) != null && lookup(assignment, "role_definition_id", null) != null))
+    ]) == 0
     error_message = "Each assignment must provide exactly one of 'role_definition_name' or 'role_definition_id'."
   }
   validation {

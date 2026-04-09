@@ -1,6 +1,6 @@
 variable "credentials" {
-  description = "A list of objects, each describing an azurerm_federated_identity_credential resource."
-  type = list(object({
+  description = "A map of objects, each describing an azurerm_federated_identity_credential resource."
+  type = map(object({
     name                      = string
     user_assigned_identity_id = optional(string)
     issuer                    = optional(string)

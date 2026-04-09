@@ -3,21 +3,20 @@ locals {
   active_configs = {
     for k, config in var.workload_configs : k => {
 
-      federated_identity_credentials = [
-        for fic_key, fic in try(local.predefined_configs[k].federated_identity_credentials, {}) : {
+      federated_identity_credentials = {
+        for fic in try(local.predefined_configs[k].federated_identity_credentials, []) :
+        "${k}-${fic.namespace}-${fic.name}" => {
           name                      = fic.name
           namespace                 = fic.namespace
           issuer                    = config.issuer_url != null ? config.issuer_url : try(fic.issuer, null)
           user_assigned_identity_id = config.user_assigned_identity_id != null ? config.user_assigned_identity_id : try(fic.user_assigned_identity_id, null)
           audience                  = try(fic.audience, null)
         }
-      ]
+      }
 
-      # We now use the explicit map keys defined in workloads.tf (e.g., 'reader', 'acrpull')
-      # This completely guarantees the keys are strictly unique and known at plan time.
       role_assignments = {
-        for ra_key, ra in try(local.predefined_configs[k].role_assignments, {}) :
-        ra_key => {
+        for ra in try(local.predefined_configs[k].role_assignments, []) :
+        "${k}-${coalesce(try(ra.role_definition_name, null), try(ra.role_definition_id, null))}" => {
           scope                            = config.scope
           role_definition_name             = try(ra.role_definition_name, null)
           role_definition_id               = try(ra.role_definition_id, null)
@@ -31,6 +30,7 @@ locals {
     if contains(keys(local.predefined_configs), k)
   }
 }
+
 module "federated_identity_credential" {
   source = "../federated_identity_credential"
 

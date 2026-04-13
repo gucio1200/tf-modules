@@ -8,18 +8,19 @@ variable "assignments" {
     description                      = optional(string, null)
     skip_service_principal_aad_check = optional(bool, false)
   }))
+
   validation {
     condition = length([
-      for assignment in var.assignments :
-      assignment if !((lookup(assignment, "role_definition_name", null) != null || lookup(assignment, "role_definition_id", null) != null) &&
-      !(lookup(assignment, "role_definition_name", null) != null && lookup(assignment, "role_definition_id", null) != null))
+      for v in var.assignments :
+      v if(v.role_definition_name != null ? 1 : 0) + (v.role_definition_id != null ? 1 : 0) != 1
     ]) == 0
     error_message = "Each assignment must provide exactly one of 'role_definition_name' or 'role_definition_id'."
   }
+
   validation {
     condition = length([
-      for assignment in var.assignments :
-      assignment if lookup(assignment, "principal_id", null) == null && var.default_principal_id == null
+      for v in var.assignments :
+      v if v.principal_id == null && var.default_principal_id == null
     ]) == 0
     error_message = "Each assignment must provide 'principal_id' (as a string or list) or a 'default_principal_id' must be set for the module."
   }

@@ -6,8 +6,9 @@ locals {
         v.principal_id != null ? try(tolist(v.principal_id), [v.principal_id]) :
         var.default_principal_id != null ? [var.default_principal_id] : []
         ) : {
-        # The key combines the original map key and the index if there are multiple principals.
-        key                              = length(try(tolist(v.principal_id), [v.principal_id])) > 1 ? "${k}-${idx}" : k
+        # Using idx == 0 ensures that if a user changes a single principal_id string
+        # into a list, the original resource is not unnecessarily destroyed and recreated.
+        key                              = idx == 0 ? k : "${k}-${idx}"
         principal_id                     = pid
         scope                            = v.scope
         role_definition_name             = v.role_definition_name

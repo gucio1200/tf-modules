@@ -1,14 +1,13 @@
 locals {
-  # Create a flat list of all assignments, expanding those with multiple principal_ids
+  # Create a flat list of all assignments, expanding those with a list of principal_ids
   flat_assignments = flatten([
     for k, v in var.assignments : [
       for idx, pid in(
-        length(coalesce(v.principal_ids, [])) > 0 ? coalesce(v.principal_ids, []) :
-        v.principal_id != null ? [v.principal_id] :
+        v.principal_id != null ? try(tolist(v.principal_id), [v.principal_id]) :
         var.default_principal_id != null ? [var.default_principal_id] : []
         ) : {
-        # The key combines the original map key and the index. 
-        key                              = length(coalesce(v.principal_ids, [])) > 0 ? "${k}-${idx}" : k
+        # The key combines the original map key and the index if there are multiple principals.
+        key                              = length(try(tolist(v.principal_id), [v.principal_id])) > 1 ? "${k}-${idx}" : k
         principal_id                     = pid
         scope                            = v.scope
         role_definition_name             = v.role_definition_name

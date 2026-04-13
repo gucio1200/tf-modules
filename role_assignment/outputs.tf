@@ -1,4 +1,4 @@
-output "ids" {
-  description = "A map of generated unique keys to their role assignment resource IDs."
-  value       = { for k, v in azurerm_role_assignment.this : k => v.id }
+output "assignments" {
+  description = "A map containing the full azurerm_role_assignment objects."
+  value       = azurerm_role_assignment.this
 }

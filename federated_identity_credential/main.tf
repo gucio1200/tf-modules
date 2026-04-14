@@ -1,5 +1,5 @@
 resource "azurerm_federated_identity_credential" "this" {
-  for_each = var.credentials
+  for_each = { for c in var.credentials : "${c.namespace}-${c.name}" => c }
 
   name                      = each.value.name
   user_assigned_identity_id = coalesce(each.value.user_assigned_identity_id, var.default_user_assigned_identity_id)

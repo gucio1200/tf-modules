@@ -35,19 +35,20 @@ resource "azurerm_user_assigned_identity" "this" {
 module "federated_identity_credential" {
   source = "../../"
 
+  cluster_name                      = "prod-cluster"
   default_issuer                    = "https://oidc.prod-aks.azure.com/00000000-0000-0000-0000-000000000000/00000000-0000-0000-0000-000000000000/"
   default_user_assigned_identity_id = azurerm_user_assigned_identity.this.id
 
   credentials = [
     # Using defaults (issuer and user_assigned_identity_id from module defaults)
     {
-      name      = "app-minimal"
+      name      = ["app-minimal-1", "app-minimal-2"]
       namespace = "default"
     },
 
     # Overriding all possible values
     {
-      name                      = "app-custom"
+      name                      = ["app-custom"]
       namespace                 = "kube-system"
       issuer                    = "https://oidc.prod-aks.azure.com/11111111-1111-1111-1111-111111111111/11111111-1111-1111-1111-111111111111/"
       audience                  = "api://CustomAudience"

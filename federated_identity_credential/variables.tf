@@ -1,7 +1,12 @@
+variable "cluster_name" {
+  description = "The name of the Kubernetes cluster."
+  type        = string
+}
+
 variable "credentials" {
   description = "A list of objects, each describing an azurerm_federated_identity_credential resource."
   type = list(object({
-    name                      = string
+    name                      = list(string)
     user_assigned_identity_id = optional(string)
     issuer                    = optional(string)
     namespace                 = string

@@ -41,7 +41,7 @@ resource "azurerm_private_endpoint" "this" {
   }
 
   dynamic "private_dns_zone_group" {
-    for_each = lookup(var.private_dns_zone_ids, each.value.subresource, null) != null ? [1] : []
+    for_each = length(lookup(var.private_dns_zone_ids, each.value.subresource, [])) > 0 ? [1] : []
     content {
       name                 = "default"
       private_dns_zone_ids = var.private_dns_zone_ids[each.value.subresource]
